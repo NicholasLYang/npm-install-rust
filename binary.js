@@ -18,12 +18,10 @@ const builder_glibc_minor_version = 35;
 const supportedPlatforms = {
   "x86_64-unknown-linux-gnu": {
     "artifact_name": "rust-1.73.0-x86_64-unknown-linux-gnu.tar.gz",
-    "bins": ["cargo/bin/cargo"],
     "zip_ext": "tar.gz"
   },
   "aarch64-apple-darwin": {
     "artifact_name": "rust-1.73.0-aarch64-apple-darwin.tar.gz",
-    "bins": ["cargo/bin/cargo"],
     "zip_ext": "tar.gz"
   }
 };
@@ -94,28 +92,38 @@ const getPlatform = () => {
   return platform;
 };
 
-const getBinary = () => {
+const getBinary = (name) => {
   const platform = getPlatform();
   const url = `${artifact_download_url}/${platform.artifact_name}`;
 
-  if (platform.bins.length > 1) {
-    // Not yet supported
-    error("this app has multiple binaries, which isn't yet implemented");
+  let binaryPath;
+  switch (name) {
+    case "rustc": {
+      binaryPath = "rustc/bin/rustc"
+      break;
+    }
+    case "cargo": {
+      binaryPath = "cargo/bin/cargo"
+      break;
+    }
+    default:
+        error(`Binary "${name}" not supported by ${name}.`);
   }
-  let binary = new Binary(platform.bins[0], url);
+
+  let binary = new Binary(binaryPath, url);
 
   return binary;
 };
 
 const install = (suppressLogs) => {
-  const binary = getBinary();
-  const proxy = configureProxy(binary.url);
+  const cargoBinary = getBinary("cargo");
+  const proxy = configureProxy(cargoBinary.url);
 
-  return binary.install(proxy, suppressLogs);
+  return cargoBinary.install(proxy, suppressLogs);
 };
 
-const run = () => {
-  const binary = getBinary();
+const run = (name) => {
+  const binary = getBinary(name);
   binary.run();
 };
 

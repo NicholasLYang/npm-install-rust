@@ -1,12 +1,13 @@
 {
-  "name": "rust",
+  "name": "cargojs",
   "version": "0.0.1",
   "description": "An npm install for the rust toolchain",
   "repository": "",
   "license": "MIT",
   "author": "Nicholas Yang <nick@nicholasyang.com>",
   "bin": {
-    "cargo": "run.js"
+    "cargo": "cargo.js",
+    "rustc": "rustc.js"
   },
   "scripts": {
     "postinstall": "node ./install.js",
