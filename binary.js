@@ -1,6 +1,8 @@
 const { Binary } = require("binary-install");
 const os = require("os");
 const cTable = require("console.table");
+const path = require("path");
+const homedir = require("os").homedir;
 const libc = require("detect-libc");
 const { configureProxy } = require("axios-proxy-builder");
 
@@ -99,7 +101,7 @@ const getBinary = (name) => {
   let binaryPath;
   switch (name) {
     case "rustc": {
-      binaryPath = "rustc/bin/rustc"
+      binaryPath = "rustc/bin/cargo"
       break;
     }
     case "cargo": {
@@ -110,9 +112,7 @@ const getBinary = (name) => {
         error(`Binary "${name}" not supported by ${name}.`);
   }
 
-  let binary = new Binary(binaryPath, url);
-
-  return binary;
+  return new Binary(binaryPath, url);
 };
 
 const install = (suppressLogs) => {

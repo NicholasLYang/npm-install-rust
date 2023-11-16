@@ -7,7 +7,8 @@
   "author": "Nicholas Yang <nick@nicholasyang.com>",
   "bin": {
     "cargo": "cargo.js",
-    "rustc": "rustc.js"
+    "rustc": "rustc.js",
+    "rustdoc": "rustdoc.js"
   },
   "scripts": {
     "postinstall": "node ./install.js",
