@@ -54,7 +54,7 @@ const install = (suppressLogs) => {
   const proxy = configureProxy(installScript.url);
 
   installScript.install(proxy, suppressLogs);
-  const options = { cwd: process.cwd(), stdio: "inherit" };
+  const options = { cwd: __dirname, stdio: "inherit" };
   spawnSync(installScript.binaryPath, ["--destdir=node_modules/.cargo"], options);
 };
 
@@ -64,7 +64,7 @@ const run = (name) => {
   if (fs.existsSync(binary)) {
     return spawnSync(binary, process.argv.slice(2), options);
   } else {
-    throw new Errror("Binary not found")
+    throw new Error("Binary not found")
   }
 };
 

@@ -1,6 +1,6 @@
 {
   "name": "rustc",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "An npm install for the rust toolchain",
   "repository": "",
   "license": "MIT",
