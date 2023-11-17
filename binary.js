@@ -22,7 +22,7 @@ const getArtifactName = () => {
       os_type = "apple-darwin";
       break;
     case "Linux":
-      os_type = "unknown-linux-gnu"
+      os_type = "unknown-linux-musl"
       break;
   }
 
@@ -34,14 +34,6 @@ const getArtifactName = () => {
     case "arm64":
       arch = "aarch64";
       break;
-  }
-
-  if (raw_os_type === "Linux") {
-    if (libc.familySync() == 'musl') {
-      os_type = "unknown-linux-musl";
-    } else {
-      throw new Error("Only musl libc is supported on Linux")
-    }
   }
 
   // Assume the above succeeded and build a target triple to look things up with.
