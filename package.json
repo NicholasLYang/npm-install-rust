@@ -6,9 +6,9 @@
   "license": "MIT",
   "author": "Nicholas Yang <nick@nicholasyang.com>",
   "bin": {
-    "cargo": "cargo.js",
-    "rustc": "rustc.js",
-    "rustdoc": "rustdoc.js"
+    "cargo": "node_modules/.cargo/usr/local/bin/cargo",
+    "rustc": "node_modules/.cargo/usr/local/bin/rustc",
+    "rustdoc": "node_modules/.cargo/usr/local/bin/rustdoc"
   },
   "scripts": {
     "postinstall": "node ./install.js",

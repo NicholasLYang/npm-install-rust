@@ -22,7 +22,7 @@ const getArtifactName = () => {
       os_type = "apple-darwin";
       break;
     case "Linux":
-      os_type = "unknown-linux-musl"
+      os_type = "unknown-linux-gnu"
       break;
   }
 
@@ -50,24 +50,25 @@ const getBinary = () => {
 };
 
 const install = (suppressLogs) => {
+  console.log("installing rust");
   const installScript = getBinary();
   const proxy = configureProxy(installScript.url);
 
-  installScript.install(proxy, suppressLogs);
-  const options = { cwd: __dirname, stdio: "inherit" };
-  spawnSync(installScript.binaryPath, ["--destdir=node_modules/.cargo"], options);
+  console.log(`installing at ${installScript.binaryPath} with __dirname ${__dirname}`);
+  installScript.install(proxy, suppressLogs).then(() => {
+    console.log("executing install script");
+    const options = { cwd: __dirname, stdio: "inherit" };
+    const result = spawnSync(installScript.binaryPath, ["--destdir=node_modules/.cargo"], options);
+    console.log("finished installing rust");
+    console.log(result);
+  });
 };
 
 const run = (name) => {
-  const binary = path.join(__dirname, "node_modules", ".cargo", "usr", "local", "bin", name);
-  const options = { cwd: process.cwd(), stdio: "inherit" };
-  if (fs.existsSync(binary)) {
-    return spawnSync(binary, process.argv.slice(2), options);
-  } else {
-    const f1 = fs.readdirSync(path.join(__dirname, "node_modules", ".cargo", "usr", "local", "bin")).join("\n");
-    const f2 = fs.readdirSync(path.join(__dirname, "node_modules")).join("\n");
-    throw new Error(`Binary not found. __dirname is ${__dirname} and binary is ${binary}\n ${f1}\n ${f2}`)
-  }
+    const binaryPath = path.join(__dirname, "node_modules", ".cargo", "usr", "local", "bin", name);
+    const options = { cwd: __dirname, stdio: "inherit" };
+    const result = spawnSync(binaryPath, process.argv.slice(2), options);
+    process.exit(result.status);
 };
 
 module.exports = {

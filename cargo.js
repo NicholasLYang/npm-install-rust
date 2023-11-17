@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { run} = require("./binary");
+const { run, install } = require("./binary");
 
 run("cargo");
 
