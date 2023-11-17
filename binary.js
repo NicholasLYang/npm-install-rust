@@ -2,7 +2,7 @@ const { Binary } = require("binary-install");
 const os = require("os");
 const path = require("path");
 const { spawnSync } = require("child_process");
-const libc = require("detect-libc");
+const fs = require("fs");
 const { configureProxy } = require("axios-proxy-builder");
 
 const artifact_download_url = "https://static.rust-lang.org/dist";
@@ -61,7 +61,11 @@ const install = (suppressLogs) => {
 const run = (name) => {
   const binary = path.join(__dirname, "node_modules", ".cargo", "usr", "local", "bin", name);
   const options = { cwd: process.cwd(), stdio: "inherit" };
-  spawnSync(binary, process.argv.slice(2), options);
+  if (fs.existsSync(binary)) {
+    return spawnSync(binary, process.argv.slice(2), options);
+  } else {
+    throw new Errror("Binary not found")
+  }
 };
 
 module.exports = {
