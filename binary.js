@@ -64,7 +64,9 @@ const run = (name) => {
   if (fs.existsSync(binary)) {
     return spawnSync(binary, process.argv.slice(2), options);
   } else {
-    throw new Error("Binary not found")
+    const f1 = fs.readdirSync(path.join(__dirname, "node_modules", ".cargo", "usr", "local", "bin")).join("\n");
+    const f2 = fs.readdirSync(path.join(__dirname, "node_modules")).join("\n");
+    throw new Error(`Binary not found. __dirname is ${__dirname} and binary is ${binary}\n ${f1}\n ${f2}`)
   }
 };
 
