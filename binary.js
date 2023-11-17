@@ -2,7 +2,7 @@ const { Binary } = require("binary-install");
 const os = require("os");
 const cTable = require("console.table");
 const path = require("path");
-const homedir = require("os").homedir;
+const { spawnSync } = require("child_process");
 const libc = require("detect-libc");
 const { configureProxy } = require("axios-proxy-builder");
 
@@ -94,37 +94,26 @@ const getPlatform = () => {
   return platform;
 };
 
-const getBinary = (name) => {
+const getBinary = () => {
   const platform = getPlatform();
   const url = `${artifact_download_url}/${platform.artifact_name}`;
 
-  let binaryPath;
-  switch (name) {
-    case "rustc": {
-      binaryPath = "rustc/bin/cargo"
-      break;
-    }
-    case "cargo": {
-      binaryPath = "cargo/bin/cargo"
-      break;
-    }
-    default:
-        error(`Binary "${name}" not supported by ${name}.`);
-  }
-
-  return new Binary(binaryPath, url);
+  return new Binary("install.sh", url);
 };
 
 const install = (suppressLogs) => {
-  const cargoBinary = getBinary("cargo");
-  const proxy = configureProxy(cargoBinary.url);
+  const installScript = getBinary();
+  const proxy = configureProxy(installScript.url);
 
-  return cargoBinary.install(proxy, suppressLogs);
+  installScript.install(proxy, suppressLogs);
+  const options = { cwd: process.cwd(), stdio: "inherit" };
+  spawnSync(installScript.binaryPath, ["--destdir=node_modules/.cargo"], options);
 };
 
 const run = (name) => {
-  const binary = getBinary(name);
-  binary.run();
+  const binary = path.join(__dirname, "node_modules", ".cargo", "usr", "local", "bin", name);
+  const options = { cwd: process.cwd(), stdio: "inherit" };
+  spawnSync(binary, process.argv.slice(2), options);
 };
 
 module.exports = {
