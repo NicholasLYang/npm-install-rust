@@ -2,7 +2,6 @@ const { Binary } = require("binary-install");
 const os = require("os");
 const path = require("path");
 const { spawnSync } = require("child_process");
-const fs = require("fs");
 const { configureProxy } = require("axios-proxy-builder");
 
 const artifact_download_url = "https://static.rust-lang.org/dist";
@@ -39,7 +38,7 @@ const getArtifactName = () => {
   // Assume the above succeeded and build a target triple to look things up with.
   // If any of it failed, this lookup will fail and we'll handle it like normal.
   let target_triple = `${arch}-${os_type}`;
-  return `rust-1.73.0-${target_triple}.tar.gz`;
+  return `rust-nightly-${target_triple}.tar.gz`;
 };
 
 const getBinary = () => {
