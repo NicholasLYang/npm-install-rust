@@ -1,8 +1,8 @@
 {
-  "name": "rustc",
-  "version": "0.0.8",
-  "description": "An npm install for the rust toolchain",
-  "repository": "",
+  "name": "rust",
+  "version": "1.74.0",
+  "description": "Install the rust toolchain using npm",
+  "repository": "https://github.com/NicholasLYang/npm-install-rust",
   "license": "MIT",
   "author": "Nicholas Yang <nick@nicholasyang.com>",
   "bin": {

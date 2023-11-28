@@ -6,6 +6,12 @@ const { configureProxy } = require("axios-proxy-builder");
 
 const artifact_download_url = "https://static.rust-lang.org/dist";
 
+function isNightly() {
+  const packageJsonPath = path.join(__dirname, "package.json");
+  const packageJson = require(packageJsonPath);
+  return packageJson.version.endsWith("-nightly");
+}
+
 const getArtifactName = () => {
   const raw_os_type = os.type();
   const raw_architecture = os.arch();
@@ -21,7 +27,7 @@ const getArtifactName = () => {
       os_type = "apple-darwin";
       break;
     case "Linux":
-      os_type = "unknown-linux-gnu"
+      os_type = "unknown-linux-gnu";
       break;
   }
 
@@ -38,7 +44,11 @@ const getArtifactName = () => {
   // Assume the above succeeded and build a target triple to look things up with.
   // If any of it failed, this lookup will fail and we'll handle it like normal.
   let target_triple = `${arch}-${os_type}`;
-  return `rust-nightly-${target_triple}.tar.gz`;
+  if (isNightly()) {
+    return `rust-nightly-${target_triple}.tar.gz`;
+  } else {
+    return `rust-1.74.0-${target_triple}.tar.gz`;
+  }
 };
 
 const getBinary = () => {
@@ -53,21 +63,35 @@ const install = (suppressLogs) => {
   const installScript = getBinary();
   const proxy = configureProxy(installScript.url);
 
-  console.log(`installing at ${installScript.binaryPath} with __dirname ${__dirname}`);
+  console.log(
+    `installing at ${installScript.binaryPath} with __dirname ${__dirname}`
+  );
   installScript.install(proxy, suppressLogs).then(() => {
     console.log("executing install script");
     const options = { cwd: __dirname, stdio: "inherit" };
-    const result = spawnSync(installScript.binaryPath, ["--destdir=node_modules/.cargo"], options);
+    const result = spawnSync(
+      installScript.binaryPath,
+      ["--destdir=node_modules/.cargo"],
+      options
+    );
     console.log("finished installing rust");
     console.log(result);
   });
 };
 
 const run = (name) => {
-    const binaryPath = path.join(__dirname, "node_modules", ".cargo", "usr", "local", "bin", name);
-    const options = { cwd: __dirname, stdio: "inherit" };
-    const result = spawnSync(binaryPath, process.argv.slice(2), options);
-    process.exit(result.status);
+  const binaryPath = path.join(
+    __dirname,
+    "node_modules",
+    ".cargo",
+    "usr",
+    "local",
+    "bin",
+    name
+  );
+  const options = { cwd: __dirname, stdio: "inherit" };
+  const result = spawnSync(binaryPath, process.argv.slice(2), options);
+  process.exit(result.status);
 };
 
 module.exports = {
