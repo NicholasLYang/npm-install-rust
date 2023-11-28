@@ -10,6 +10,12 @@
     "rustc": "node_modules/.cargo/usr/local/bin/rustc",
     "rustdoc": "node_modules/.cargo/usr/local/bin/rustdoc"
   },
+  "files": [
+    "install.js",
+    "LICENSE",
+    "README.md",
+    "binary.js"
+  ],
   "scripts": {
     "postinstall": "node ./install.js",
     "fmt": "prettier --write **/*.js",
