@@ -3,6 +3,7 @@ const os = require("os");
 const path = require("path");
 const { spawnSync } = require("child_process");
 const { configureProxy } = require("axios-proxy-builder");
+const fs = require("fs/promises");
 
 const artifact_download_url = "https://static.rust-lang.org/dist";
 
@@ -58,7 +59,7 @@ const getBinary = () => {
   return new Binary("install.sh", url);
 };
 
-const install = (suppressLogs) => {
+const install = async (suppressLogs) => {
   console.log("installing rust");
   const installScript = getBinary();
   const proxy = configureProxy(installScript.url);
@@ -66,36 +67,46 @@ const install = (suppressLogs) => {
   console.log(
     `installing at ${installScript.binaryPath} with __dirname ${__dirname}`
   );
-  installScript.install(proxy, suppressLogs).then(() => {
-    console.log("executing install script");
-    const options = { cwd: __dirname, stdio: "inherit" };
-    const result = spawnSync(
-      installScript.binaryPath,
-      ["--destdir=node_modules/.cargo"],
-      options
-    );
-    console.log("finished installing rust");
-    console.log(result);
-  });
-};
+  await installScript.install(proxy, suppressLogs);
+  console.log("executing install script");
+  const options = { cwd: __dirname, stdio: "inherit" };
+  const result = spawnSync(
+    installScript.binaryPath,
+    ["--destdir=node_modules/.cargo"],
+    options
+  );
+  console.log("finished installing rust");
 
-const run = (name) => {
-  const binaryPath = path.join(
+  console.log("linking binaries");
+  const binPath = path.join(
     __dirname,
     "node_modules",
     ".cargo",
     "usr",
     "local",
-    "bin",
-    name
+    "bin"
   );
-  const options = { cwd: __dirname, stdio: "inherit" };
-  const result = spawnSync(binaryPath, process.argv.slice(2), options);
-  process.exit(result.status);
+
+  await fs.mkdir(path.join(__dirname, "..", ".bin"), { recursive: true });
+  console.log("created .bin directory");
+  // We link manually because we may not install the binaries, so we don't want symlinks pointing to nowhere.
+  await Promise.all([
+    fs.symlink(
+      path.join(binPath, "cargo"),
+      path.join(__dirname, "..", ".bin", "cargo")
+    ),
+    fs.symlink(
+      path.join(binPath, "rustc"),
+      path.join(__dirname, "..", ".bin", "rustc")
+    ),
+    fs.symlink(
+      path.join(binPath, "rustdoc"),
+      path.join(__dirname, "..", ".bin", "rustdoc")
+    ),
+  ]);
 };
 
 module.exports = {
   install,
-  run,
   getBinary,
 };
