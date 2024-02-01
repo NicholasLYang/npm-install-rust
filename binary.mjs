@@ -10,15 +10,15 @@ async function getToolchain(dirname) {
   const packageJsonText = await fs.readFile(packageJsonPath, "utf-8");
   const packageJson = JSON.parse(packageJsonText);
   if (packageJson.version.endsWith("-nightly")) {
-    return "nightly"
+    return "nightly";
   } else if (packageJson.version.endsWith("-beta")) {
-    return "beta"
+    return "beta";
   } else if (packageJson.version.endsWith("-stable")) {
-    return "stable"
+    return "stable";
   } else if (/1\.\d+\.\d+/.test(packageJson.version)) {
-    return packageJson.version
+    return packageJson.version;
   } else {
-    throw new Error("unknown toolchain")
+    throw new Error("unknown toolchain");
   }
 }
 
@@ -31,7 +31,7 @@ const getTargetName = (toolchain) => {
   let osType = "";
   switch (rawOsType) {
     case "Windows_NT":
-      throw new Error("Windows is not supported")
+      throw new Error("Windows is not supported");
     case "Darwin":
       osType = "apple-darwin";
       break;
@@ -56,6 +56,19 @@ const getTargetName = (toolchain) => {
 };
 
 const install = async () => {
+  let installGlobally;
+  if (!process.env.RUST_INSTALL_LOCATION) {
+    installGlobally = true;
+  } else if (process.env.RUST_INSTALL_LOCATION === "global") {
+    installGlobally = true;
+  } else if (process.env.RUST_INSTALL_LOCATION === "local") {
+    installGlobally = false;
+  } else {
+    throw new Error(
+      `unknown install location: ${process.env.RUST_INSTALL_LOCATION}`
+    );
+  }
+
   console.log("downloading rustup");
 
   const resp = await fetch("https://sh.rustup.rs");
@@ -74,7 +87,16 @@ const install = async () => {
 
   console.log("installing rust");
 
-  await $`RUSTUP_HOME=${installDir} ${dirname}/node_modules/rustup.sh -y --default-toolchain ${toolchain}`;
+  // In some cases like pnpm, there's a wonky directory structure,
+  // so we can't install the rust toolchain locally, instead we
+  // install it globally. This isn't ideal, but it works
+  // well enough for deployment situations like Vercel.
+  if (installGlobally) {
+    await $`${rustupPath} -y --default-toolchain ${toolchain}`;
+  } else {
+    const envVar = `RUSTUP_HOME=${installDir}`;
+    await $`${envVar} ${rustupPath} -y --default-toolchain ${toolchain}`;
+  }
 
   const targetTriple = getTargetName(toolchain);
 
@@ -108,6 +130,4 @@ const install = async () => {
   ]);
 };
 
-export {
-  install,
-};
+export { install };
