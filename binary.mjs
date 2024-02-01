@@ -93,10 +93,13 @@ const install = async () => {
   // well enough for deployment situations like Vercel.
   if (installGlobally) {
     await $`${rustupPath} -y --default-toolchain ${toolchain}`;
-  } else {
-    const envVar = `RUSTUP_HOME=${installDir}`;
-    await $`${envVar} ${rustupPath} -y --default-toolchain ${toolchain}`;
+    await $`source $HOME/.cargo/env`;
+    return;
   }
+
+  const envVar = `RUSTUP_HOME=${installDir}`;
+  await $`${envVar} ${rustupPath} -y --default-toolchain ${toolchain}`;
+
 
   const targetTriple = getTargetName(toolchain);
 
