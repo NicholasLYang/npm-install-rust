@@ -1,6 +1,6 @@
 {
   "name": "rust",
-  "version": "1.0.4-nightly",
+  "version": "1.0.5-nightly",
   "description": "Install the rust toolchain using npm",
   "repository": "https://github.com/NicholasLYang/npm-install-rust",
   "license": "MIT",
