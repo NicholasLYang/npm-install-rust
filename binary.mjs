@@ -85,7 +85,7 @@ const install = async () => {
   const installDir = path.join(dirname, "node_modules", ".rustup");
 
   // If we have a `SUDO_UID` variable OR `RUST_INSTALL_SUDO` variable, we are in sudo mode
-  const isSudo = !!process.env.SUDO_UID || !!process.env.RUST_INSTALL_SUDO;
+  const isSudo = !!process.env.SUDO_UID;
   // If we are in sudo mode, we need to downgrade for rustup to work properly
   const sudoCommand = isSudo ? `sudo -u ${process.env.SUDO_USER}` : ""
   console.log("sudo command", sudoCommand)
@@ -96,8 +96,11 @@ const install = async () => {
   // install it globally. This isn't ideal, but it works
   // well enough for deployment situations like Vercel.
   if (installGlobally) {
-    await $`${sudoCommand} ${rustupPath} -y --default-toolchain ${toolchain}`;
+    // We have to specify this because on Vercel, the detected home directory
+    // is not the same as $HOME
     const homedir = os.homedir();
+    const envVar = `RUSTUP_HOME=${homedir}/.rustup CARGO_HOME=${homedir}/.cargo`;
+    await $`${envVar} ${sudoCommand} ${rustupPath} -y --default-toolchain ${toolchain}`;
     await $`source ${homedir}/.cargo/env`;
     return;
   }
