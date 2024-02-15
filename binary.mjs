@@ -88,6 +88,7 @@ const install = async () => {
   const isSudo = !!process.env.SUDO_UID || !!process.env.RUST_INSTALL_SUDO;
   // If we are in sudo mode, we need to downgrade for rustup to work properly
   const sudoCommand = isSudo ? `sudo -u ${process.env.SUDO_USER}` : ""
+  console.log("sudo command", sudoCommand)
   console.log("installing rust");
 
   // In some cases like pnpm, there's a wonky directory structure,
