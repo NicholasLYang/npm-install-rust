@@ -84,7 +84,8 @@ const install = async () => {
   await $`chmod +x ${rustupPath}`;
   const installDir = path.join(dirname, "node_modules", ".rustup");
 
-  const isSudo = !!process.env.SUDO_USER;
+  // If we have a `SUDO_UID` variable OR `RUST_INSTALL_SUDO` variable, we are in sudo mode
+  const isSudo = !!process.env.SUDO_UID || !!process.env.RUST_INSTALL_SUDO;
   // If we are in sudo mode, we need to downgrade for rustup to work properly
   const sudoCommand = isSudo ? `sudo -u ${process.env.SUDO_USER}` : ""
   console.log("installing rust");
