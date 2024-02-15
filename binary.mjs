@@ -84,6 +84,9 @@ const install = async () => {
   await $`chmod +x ${rustupPath}`;
   const installDir = path.join(dirname, "node_modules", ".rustup");
 
+  const isSudo = !!process.env.SUDO_USER;
+  // If we are in sudo mode, we need to downgrade for rustup to work properly
+  const sudoCommand = isSudo ? `sudo -u ${process.env.SUDO_USER}` : ""
   console.log("installing rust");
 
   // In some cases like pnpm, there's a wonky directory structure,
@@ -91,14 +94,14 @@ const install = async () => {
   // install it globally. This isn't ideal, but it works
   // well enough for deployment situations like Vercel.
   if (installGlobally) {
-    await $`${rustupPath} -y --default-toolchain ${toolchain}`;
+    await $`${sudoCommand} ${rustupPath} -y --default-toolchain ${toolchain}`;
     const homedir = os.homedir();
     await $`source ${homedir}/.cargo/env`;
     return;
   }
 
   const envVar = `RUSTUP_HOME=${installDir}`;
-  await $`${envVar} ${rustupPath} -y --default-toolchain ${toolchain}`;
+  await $`${envVar} ${sudoCommand} ${rustupPath} -y --default-toolchain ${toolchain}`;
 
 
   const targetTriple = getTargetName(toolchain);
