@@ -1,4 +1,3 @@
-import { Binary } from "binary-install";
 import os from "node:os";
 import path from "node:path";
 import fs from "node:fs/promises";
@@ -93,7 +92,8 @@ const install = async () => {
   // well enough for deployment situations like Vercel.
   if (installGlobally) {
     await $`${rustupPath} -y --default-toolchain ${toolchain}`;
-    await $`source $HOME/.cargo/env`;
+    const homedir = os.homedir();
+    await $`source ${homedir}/.cargo/env`;
     return;
   }
 
